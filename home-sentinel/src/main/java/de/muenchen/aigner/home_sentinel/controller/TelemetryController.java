@@ -5,10 +5,7 @@ import de.muenchen.aigner.home_sentinel.model.SensorData;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import tools.jackson.databind.ObjectMapper;
 
 import java.time.Duration;
@@ -37,6 +34,23 @@ public class TelemetryController {
 
         }catch(Exception e) {
             e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @GetMapping("/{deviceID}")
+    public ResponseEntity<SensorData> getTelemetry(@PathVariable String deviceID){
+        String key =  "sensor:latest:" + deviceID;
+        String json =  redisTemplate.opsForValue().get(key);
+
+        if(json == null){
+            return ResponseEntity.notFound().build();
+        }
+
+        try{
+            SensorData data = objectMapper.readValue(json, SensorData.class);
+            return ResponseEntity.ok(data);
+        }catch(Exception e){
             return ResponseEntity.internalServerError().build();
         }
     }
