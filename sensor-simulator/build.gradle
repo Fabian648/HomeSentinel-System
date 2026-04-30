@@ -18,3 +18,14 @@ dependencies {
 test {
     useJUnitPlatform()
 }
+
+jar {
+    manifest {
+        attributes["Main-Class"] = "de.muenchen.aigner.sensoren.Simulator"
+    }
+    // Das kopiert alle Abhängigkeiten mit ins JAR
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}

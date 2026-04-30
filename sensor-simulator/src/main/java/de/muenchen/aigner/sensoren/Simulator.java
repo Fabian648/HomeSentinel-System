@@ -11,7 +11,12 @@ import java.util.concurrent.ThreadLocalRandom;
 public class Simulator {
     public static void main(String[] args) throws Exception {
         var client = HttpClient.newHttpClient();
-        String url = "http://localhost:8080/api/v1/telemetry";
+        // Ersetze die feste URL durch diese Logik:
+        String backendHost = System.getenv("BACKEND_URL");
+        if (backendHost == null) {
+            backendHost = "http://localhost:8080"; // Fallback für IntelliJ
+        }
+        String url = backendHost + "/api/v1/telemetry";
 
         System.out.println("🚀 Simulator gestartet. Sende Daten an: " + url);
 
