@@ -1,0 +1,27 @@
+# Java & Gradle
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+/out/
+
+# IDEs
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+.settings/
+.classpath
+.project
+
+# OS
+.DS_Store
+thumbs.db
+
+# Mobile (Android)
+mobile-app/.cxx/
+mobile-app/build/
+mobile-app/local.properties
+mobile-app/.externalNativeBuild
+mobile-app/.navigation/
+mobile-app/captures/
