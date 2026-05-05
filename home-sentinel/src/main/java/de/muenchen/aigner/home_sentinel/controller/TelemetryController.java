@@ -20,6 +20,11 @@ public class TelemetryController {
 
     @PostMapping
     public ResponseEntity<String> receiveTelemetry(@RequestBody SensorData data){
+
+        if(data.value() > 70.0 || data.value() < -100.0 || data.deviceID() == null){
+            return ResponseEntity.badRequest().build();
+        }
+
         try{
 
             String json = objectMapper.writeValueAsString(data);
@@ -40,6 +45,10 @@ public class TelemetryController {
 
     @GetMapping("/{deviceID}")
     public ResponseEntity<SensorData> getTelemetry(@PathVariable String deviceID){
+        if(deviceID == null){
+            return ResponseEntity.notFound().build();
+        }
+
         String key =  "sensor:latest:" + deviceID;
         String json =  redisTemplate.opsForValue().get(key);
 
@@ -53,5 +62,6 @@ public class TelemetryController {
         }catch(Exception e){
             return ResponseEntity.internalServerError().build();
         }
+
     }
 }
