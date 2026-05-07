@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HomeSentinel Dashboard</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #f1f5f9;
+            --accent-color: #38bdf8;
+            --danger-color: #ef4444;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 { color: var(--accent-color); margin-bottom: 30px; }
+
+        .sensor-card {
+            background-color: var(--card-bg);
+            border-radius: 15px;
+            padding: 25px;
+            width: 300px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+            border-left: 5px solid var(--accent-color);
+            transition: transform 0.2s;
+        }
+
+        .sensor-card:hover { transform: translateY(-5px); }
+
+        .device-id { font-size: 0.8rem; text-transform: uppercase; opacity: 0.7; }
+
+        .value-display {
+            font-size: 3rem;
+            font-weight: bold;
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .unit { font-size: 1.5rem; margin-left: 5px; color: var(--accent-color); }
+
+        .status { font-size: 0.9rem; display: flex; align-items: center; gap: 8px; }
+
+        .dot { height: 10px; width: 10px; background-color: #22c55e; border-radius: 50%; display: inline-block; }
+
+        .error-dot { background-color: var(--danger-color); }
+    </style>
+</head>
+<body>
+
+<h1>HomeSentinel Live</h1>
+
+<div id="dashboard">
+    <div class="sensor-card">
+        <div class="device-id" id="id-label">Warte auf Daten...</div>
+        <div class="value-display">
+            <span id="temp-value">--.-</span>
+            <span class="unit">°C</span>
+        </div>
+        <div class="status">
+            <span class="dot" id="status-dot"></span>
+            <span id="status-text">Verbunden</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    const DEVICE_ID = 'ESP32-SIM-01';
+
+    async function fetchTelemetry() {
+        try {
+            const response = await fetch(`/api/v1/telemetry/${DEVICE_ID}`);
+
+            if (!response.ok) throw new Error('Sensor nicht gefunden');
+
+            const data = await response.json();
+
+            // Update UI
+            document.getElementById('temp-value').innerText = data.value.toFixed(1);
+            document.getElementById('id-label').innerText = data.deviceID;
+
+            // Alarm-Optik ab 50 Grad
+            const card = document.querySelector('.sensor-card');
+            if(data.value > 50) {
+                card.style.borderLeftColor = '#ef4444';
+                document.getElementById('temp-value').style.color = '#ef4444';
+            } else {
+                card.style.borderLeftColor = '#38bdf8';
+                document.getElementById('temp-value').style.color = 'white';
+            }
+
+            document.getElementById('status-dot').classList.remove('error-dot');
+            document.getElementById('status-text').innerText = "Online";
+
+        } catch (error) {
+            console.error("Fehler:", error);
+            document.getElementById('status-dot').classList.add('error-dot');
+            document.getElementById('status-text').innerText = "Sensor Offline";
+        }
+    }
+
+    // Alle 2 Sekunden aktualisieren
+    setInterval(fetchTelemetry, 2000);
+    fetchTelemetry(); // Sofort-Start
+</script>
+</body>
+</html>
