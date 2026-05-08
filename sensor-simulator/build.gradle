@@ -22,7 +22,7 @@ test {
 
 jar {
     manifest {
-        attributes["Main-Class"] = "de.muenchen.aigner.sensoren.Simulator"
+        attributes["Main-Class"] = "de.muenchen.aigner.sensoren.SimulatorApp"
     }
     from {
         configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }

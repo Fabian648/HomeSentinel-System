@@ -17,6 +17,8 @@ public class Simulator implements Runnable {
     public void run() {
         HttpClient client = HttpClient.newHttpClient();
         String backendHost = System.getenv("BACKEND_URL");
+        String regKey = System.getenv("REGISTRATION_KEY");
+        if (regKey == null) regKey = "MeinGeheimesPasswort";
         String deviceApiKey = null;
         String deviceId = "ESP32-SIM-" + counter.incrementAndGet();
 
@@ -33,7 +35,7 @@ public class Simulator implements Runnable {
                 boolean run = true;
                 System.out.println("🔑 " + deviceId + " versucht sich zu registrieren...");
                 while (run) {
-                    HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url + "/register/" + deviceId)).header("key", "MeinGeheimesPasswort").build();
+                    HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url + "/register/" + deviceId)).header("key", regKey).build();
                     try {
                         HttpResponse response = client.send(request, HttpResponse.BodyHandlers.ofString());
                         if (response.statusCode() == 200) {

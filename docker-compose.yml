@@ -9,12 +9,17 @@ services:
     build: ./home-sentinel
     ports:
       - "8080:8080"
+    environment:
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_DATA_REDIS_PORT=6379
+      - AUTH_REGISTRATION_KEY=MeinGeheimesPasswort
     depends_on:
       - redis
 
   simulator:
     build: ./sensor-simulator
-    depends_on:
-      - backend      
     environment:
       - BACKEND_URL=http://backend:8080
+      - REGISTRATION_KEY=MeinGeheimesPasswort
+    depends_on:
+      - backend
