@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'application'
 }
 
 group = 'de.muenchen.aigner'
@@ -23,9 +24,21 @@ jar {
     manifest {
         attributes["Main-Class"] = "de.muenchen.aigner.sensoren.Simulator"
     }
-    // Das kopiert alle Abhängigkeiten mit ins JAR
     from {
         configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+application {
+    mainClass = 'de.muenchen.aigner.sensoren.SimulatorApp'
+}
+
+tasks.register('runSimulator', JavaExec) {
+    group = 'application'
+    description = 'Startet den Multi-Sensor-Simulator'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'de.muenchen.aigner.sensoren.SimulatorApp'
+
+    standardInput = System.in
 }

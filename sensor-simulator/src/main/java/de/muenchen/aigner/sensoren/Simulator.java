@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class Simulator implements Runnable {
 
-    private static AtomicInteger counter;
+    static AtomicInteger counter;
 
     @Override
     public void run() {
@@ -31,8 +31,9 @@ public class Simulator implements Runnable {
 
             if (deviceApiKey == null) {
                 boolean run = true;
+                System.out.println("🔑 " + deviceId + " versucht sich zu registrieren...");
                 while (run) {
-                    HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url + "/register/" + deviceId)).header("X-API-KEY", "MeinGeheimesPasswort").build();
+                    HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url + "/register/" + deviceId)).header("key", "MeinGeheimesPasswort").build();
                     try {
                         HttpResponse response = client.send(request, HttpResponse.BodyHandlers.ofString());
                         if (response.statusCode() == 200) {
@@ -58,7 +59,7 @@ public class Simulator implements Runnable {
                         "unit": "°C",
                         "timestamp": "%s"
                     }
-                    """.formatted(deviceId), temp, Instant.now());
+                    """, deviceId, temp, Instant.now());
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url)).header("X-API-KEY", deviceApiKey)
@@ -76,11 +77,12 @@ public class Simulator implements Runnable {
 
                 System.out.println("✅ Status " + response.statusCode() + " | Gesendet: " + temp + "°C");
 
+                Thread.sleep(3000);
             } catch (Exception e) {
                 System.err.println("❌ Fehler: Backend nicht erreichbar?");
             }
 
-            Thread.sleep(3000);
+
         }
     }
 }
