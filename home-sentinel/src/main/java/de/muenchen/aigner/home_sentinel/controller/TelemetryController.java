@@ -75,7 +75,7 @@ public class TelemetryController {
 
             redisTemplate.opsForValue().set("auth:key:" + apikey, deviceID);
 
-            return ResponseEntity.ok(objectMapper.writeValueAsString(apikey));
+            return ResponseEntity.ok(apikey);
         }catch(Exception e){
             return ResponseEntity.internalServerError().build();
         }
