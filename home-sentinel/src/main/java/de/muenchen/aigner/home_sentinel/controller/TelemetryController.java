@@ -6,6 +6,8 @@ import de.muenchen.aigner.home_sentinel.utils.APIKeyGenerator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tools.jackson.databind.ObjectMapper;
@@ -24,7 +26,13 @@ public class TelemetryController {
     private String master_key;
 
     @PostMapping
-    public ResponseEntity<String> receiveTelemetry(@RequestBody SensorData data){
+    public ResponseEntity<String> receiveTelemetry(@RequestBody SensorData data, @RequestHeader("X-API-KEY") String apiKey) {
+
+        String device = redisTemplate.opsForValue().get("auth:key:" + apiKey);
+
+        if(device == null || !device.equals(data.deviceID())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
 
         if(data.value() > 70.0 || data.value() < -100.0 || data.deviceID() == null){
             return ResponseEntity.badRequest().build();
