@@ -40,19 +40,30 @@ public class TelemetryControllerTest {
 
     @Test
     void shouldAcceptValidTelemetry() throws Exception {
-        String validJson = "{\"deviceID\": \"sensor-1\", \"value\": 25.5}";
+        String testKey = "abc-123-key";
+        String deviceId = "sensor-1";
+        String validJson = "{\"deviceID\": \"" + deviceId + "\", \"value\": 25.5}";
+
+        when(valueOperations.get("auth:key:" + testKey)).thenReturn(deviceId);
 
         mockMvc.perform(post("/api/v1/telemetry")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(validJson))
+                        .header("X-API-KEY", testKey) // 2. Den Header mitschicken!
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(validJson))
                 .andExpect(status().isAccepted());
     }
 
     @Test
     void shouldRejectInvalidTelemetry() throws Exception {
-        String invalidJson_hightemp = "{\"deviceID\": \"sensor-1\", \"value\": 82.25}";
-        String invalidJson_lowtemp = "{\"deviceID\": \"sensor-1\", \"value\": -378.42}";
-        String invalidJson_id = "{\"deviceID\": null, \"value\": 55.36}";
+        String testKey = "abc-123-key";
+        String deviceId = "sensor-1";
+        String deviceId_false = "null";
+        String invalidJson_hightemp = "{\"deviceID\": \"" + deviceId + "\", \"value\": 25.5}";
+        String invalidJson_lowtemp = "{\"deviceID\": \"" + deviceId + "\", \"value\": 25.5}";
+        String invalidJson_id = "{\"deviceID\": \"" + deviceId_false + "\", \"value\": 25.5}";
+
+
+        when(valueOperations.get("auth:key:" + testKey)).thenReturn(deviceId);
 
         mockMvc.perform(post("/api/v1/telemetry")
                 .contentType(MediaType.APPLICATION_JSON)
