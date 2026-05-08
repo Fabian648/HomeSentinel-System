@@ -2,7 +2,9 @@ package de.muenchen.aigner.home_sentinel.controller;
 
 
 import de.muenchen.aigner.home_sentinel.model.SensorData;
+import de.muenchen.aigner.home_sentinel.utils.APIKeyGenerator;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +19,9 @@ public class TelemetryController {
 
     private final StringRedisTemplate redisTemplate;
     private final ObjectMapper objectMapper;
+
+    @Value("${auth.registration-key}")
+    private String master_key;
 
     @PostMapping
     public ResponseEntity<String> receiveTelemetry(@RequestBody SensorData data){
@@ -41,6 +46,31 @@ public class TelemetryController {
             e.printStackTrace();
             return ResponseEntity.internalServerError().build();
         }
+    }
+
+    @GetMapping("/register/{deviceID}")
+    public ResponseEntity<String> registerTelemetry(@PathVariable String deviceID, @RequestHeader String key){
+
+
+        if(deviceID == null){
+            return ResponseEntity.badRequest().build();
+        }
+        if(key == null){
+            return ResponseEntity.badRequest().build();
+        }
+        if(!master_key.equals(key)){
+            return ResponseEntity.badRequest().build();
+        }
+
+        try{
+            String apikey = APIKeyGenerator.generateAPIKey();
+
+            return ResponseEntity.ok(objectMapper.writeValueAsString(apikey));
+        }catch(Exception e){
+            return ResponseEntity.internalServerError().build();
+        }
+
+
     }
 
     @GetMapping("/{deviceID}")
